@@ -70,8 +70,9 @@ public class Socks {
                 Objects.equals(socks.size, size) &&
                 Objects.equals(socks.cottonPercentage, cottonPercentage);
     }
+
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(color, size, cottonPercentage);
     }
 }

@@ -18,4 +18,5 @@ public enum Size {
     Size(String sizeStr) {
         this.sizeStr = sizeStr;
     }
+
 }

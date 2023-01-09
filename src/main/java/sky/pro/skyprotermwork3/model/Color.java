@@ -8,7 +8,8 @@ public enum Color {
     DARK_BLUE("Тёмно-синий"),
     BROWN("Коричневый");
     private final String colorName;
-    Color(String colorName){
+
+    Color(String colorName) {
         this.colorName = colorName;
     }
 }

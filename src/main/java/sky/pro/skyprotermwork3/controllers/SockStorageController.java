@@ -28,37 +28,40 @@ public class SockStorageController {
     }
 
     @PutMapping
-    public ResponseEntity releaseSocks(@RequestBody Socks socks){
+    public ResponseEntity releaseSocks(@RequestBody Socks socks) {
         if (!sockStorageService.decreaseSocksQty(socks)) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/minCotton")
     public ResponseEntity getSocksByParamCottonMin(@RequestParam Color color,
                                                    @RequestParam Size size,
-                                                   @RequestParam int cottonMin){
-        if (cottonMin>0){
+                                                   @RequestParam int cottonMin) {
+        if (cottonMin > 0) {
             return ResponseEntity.ok().body(sockStorageService.getSocksByParamCottonMin(color, size, cottonMin));
         }
         return ResponseEntity.badRequest().build();
     }
+
     @GetMapping("/maxCotton")
     public ResponseEntity getSocksByParamCottonMax(@RequestParam Color color,
                                                    @RequestParam Size size,
-                                                   @RequestParam int cottonMax){
-        if (cottonMax>0){
+                                                   @RequestParam int cottonMax) {
+        if (cottonMax > 0) {
             return ResponseEntity.ok().body(sockStorageService.getSocksByParamCottonMax(color, size, cottonMax));
         }
         return ResponseEntity.badRequest().build();
     }
 
     @GetMapping
-    public ResponseEntity<HashMap> getAllSocks(){
+    public ResponseEntity<HashMap> getAllSocks() {
         return ResponseEntity.ok().body(sockStorageService.getSocksStorage());
     }
+
     @DeleteMapping
-    public ResponseEntity writeOffSocks(@RequestBody Socks socks){
+    public ResponseEntity writeOffSocks(@RequestBody Socks socks) {
         if (!sockStorageService.decreaseSocksQty(socks)) {
             return ResponseEntity.badRequest().build();
         }

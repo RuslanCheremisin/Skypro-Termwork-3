@@ -14,7 +14,7 @@ public class SockStorageService {
 
     public boolean addSocks(Socks socks) {
         int qty;
-        if (socks.getCottonPercentage() < 0 && socks.getCottonPercentage()>100) {
+        if (socks.getCottonPercentage() < 0 && socks.getCottonPercentage() > 100) {
             return false;
         }
         if (socks.getQuantity() <= 0) {
@@ -26,13 +26,13 @@ public class SockStorageService {
         if (socksStorage.size() == 0) {
             socksStorage.put(socksBatchId++, socks);
         } else {
-            if(socksStorage.containsValue(socks)){
-                for (Socks socksValue: socksStorage.values()){
-                    if (socksValue.equals(socks)){
+            if (socksStorage.containsValue(socks)) {
+                for (Socks socksValue : socksStorage.values()) {
+                    if (socksValue.equals(socks)) {
                         socksValue.setQuantity(socksValue.getQuantity() + qty);
                     }
                 }
-            }else {
+            } else {
                 socksStorage.put(socksBatchId++, socks);
             }
         }
@@ -40,9 +40,9 @@ public class SockStorageService {
     }
 
     public boolean decreaseSocksQty(Socks socks) {
-        if (socksStorage.containsValue(socks)){
-            for (Socks socksValue: socksStorage.values()){
-                if (socksValue.equals(socks) && socksValue.getQuantity()>=socks.getQuantity()){
+        if (socksStorage.containsValue(socks)) {
+            for (Socks socksValue : socksStorage.values()) {
+                if (socksValue.equals(socks) && socksValue.getQuantity() >= socks.getQuantity()) {
                     socksValue.setQuantity(socksValue.getQuantity() - socks.getQuantity());
                     return true;
                 }
@@ -53,7 +53,7 @@ public class SockStorageService {
 
     public int getSocksByParamCottonMin(Color color, Size size, int minCottonPercentage) {
         int qty = 0;
-        for(Socks socks: socksStorage.values()){
+        for (Socks socks : socksStorage.values()) {
             if (socks.getColor() == color && socks.getSize() == size && socks.getCottonPercentage() >= minCottonPercentage) {
                 qty += socks.getQuantity();
             }
@@ -63,13 +63,14 @@ public class SockStorageService {
 
     public int getSocksByParamCottonMax(Color color, Size size, int maxCottonPercentage) {
         int qty = 0;
-        for(Socks socks: socksStorage.values()){
+        for (Socks socks : socksStorage.values()) {
             if (socks.getColor() == color && socks.getSize() == size && socks.getCottonPercentage() <= maxCottonPercentage) {
                 qty += socks.getQuantity();
             }
         }
         return qty;
     }
+
     public HashMap<Long, Socks> getSocksStorage() {
         return socksStorage;
     }
