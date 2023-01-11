@@ -5,32 +5,20 @@ import java.util.Objects;
 public class Socks {
     private Size size;
     private Color color;
-    private int cottonPercentage;
+    private int cotton;
     private int quantity;
 
-    public Socks(Color color, Size size, int cottonPercentage, int quantity) {
+    public Socks(Color color, Size size, int cotton, int quantity) {
         this.color = color;
         this.size = size;
-        if (cottonPercentage <= 0) {
-            this.cottonPercentage = 80;
-        } else {
-            this.cottonPercentage = cottonPercentage;
-        }
-        if (quantity <= 0) {
-            this.quantity = 1;
-        } else {
-            this.quantity = quantity;
-        }
+        this.cotton = cotton;
+        this.quantity = quantity;
     }
 
-    public Socks(Color color, Size size, int cottonPercentage) {
+    public Socks(Color color, Size size, int cotton) {
         this.color = color;
         this.size = size;
-        if (cottonPercentage <= 0) {
-            this.cottonPercentage = 80;
-        } else {
-            this.cottonPercentage = cottonPercentage;
-        }
+        this.cotton = cotton;
 
     }
 
@@ -45,8 +33,8 @@ public class Socks {
         return this.size;
     }
 
-    public int getCottonPercentage() {
-        return this.cottonPercentage;
+    public int getCotton() {
+        return this.cotton;
     }
 
     public int getQuantity() {
@@ -68,11 +56,11 @@ public class Socks {
         Socks socks = (Socks) o;
         return Objects.equals(socks.color, color) &&
                 Objects.equals(socks.size, size) &&
-                Objects.equals(socks.cottonPercentage, cottonPercentage);
+                Objects.equals(socks.cotton, cotton);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, size, cottonPercentage);
+        return Objects.hash(color, size, cotton);
     }
 }
