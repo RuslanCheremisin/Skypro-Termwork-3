@@ -5,17 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sky.pro.skyprotermwork3.exceptions.IncorrectSockDataEntryException;
 import sky.pro.skyprotermwork3.model.Color;
 import sky.pro.skyprotermwork3.model.Size;
 import sky.pro.skyprotermwork3.model.Socks;
 import sky.pro.skyprotermwork3.services.SockStorageService;
+import sky.pro.skyprotermwork3.services.SocksFileService;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +30,7 @@ import java.nio.file.Paths;
 @Tag(name = "Склад носков", description = "Здесь вы можете произвести операции с парами носков различного цвета, размера и состава ткани")
 public class SockStorageController {
     private SockStorageService sockStorageService;
+    private SocksFileService socksFileService;
     @Value("${pathToSocksJsonSchema}")
     private String schemaPath;
     @Value("${nameOfSocksJsonSchema}")
@@ -34,8 +40,9 @@ public class SockStorageController {
     @Value("${nameOfSocksJson}")
     private String socksJsonName;
 
-    public SockStorageController(SockStorageService sockServiceService) {
+    public SockStorageController(SockStorageService sockServiceService, SocksFileService socksFileService) {
         this.sockStorageService = sockServiceService;
+        this.socksFileService = socksFileService;
     }
 
     @PostMapping
@@ -76,6 +83,36 @@ public class SockStorageController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<InputStreamResource> downloadSockStorage(){
+        File file = socksFileService.readFile();
+        InputStreamResource resource = null;
+        if (file.exists()){
+            try{
+                resource = new InputStreamResource(new FileInputStream(file));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            return ResponseEntity.ok()
+                    .contentLength(file.length())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sockStorage.json\"")
+                    .body(resource);
+        }
+        return ResponseEntity.noContent().build();
+
+    }
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadSockStorage(@RequestParam MultipartFile sockStorageFile){
+        socksFileService.cleanFile();
+        try (FileOutputStream fos = new FileOutputStream(socksFileService.readFile())) {
+            IOUtils.copy(sockStorageFile.getInputStream(), fos);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
