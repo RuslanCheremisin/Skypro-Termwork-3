@@ -8,12 +8,15 @@ import sky.pro.skyprotermwork3.model.Color;
 import sky.pro.skyprotermwork3.model.Size;
 import sky.pro.skyprotermwork3.model.Socks;
 
-
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class SockStorageService {
-    private HashMap<Long, Socks> socksStorage = new HashMap<>();
+    private HashMap<Socks, Long> socksStorage = new HashMap<>();
     private long socksBatchId = 0;
     private final SocksFileService socksFileService;
 
@@ -22,38 +25,28 @@ public class SockStorageService {
     }
 
     public void addSocks(Socks socks) {
-//        int qty;
-//        if (socks.getCottonPercentage() < 0 || socks.getCottonPercentage() > 100) {
-//            return false;
-//        }
-//        if (socks.getQuantity() <= 0) {
-//            return false;
-//        } else {
-//            qty = socks.getQuantity();
-//        }
-
+        readFile();
         if (socksStorage.size() == 0) {
-            socksStorage.put(socksBatchId++, socks);
+            socksStorage.put(socks, socksBatchId++);
         } else {
-            if (socksStorage.containsValue(socks)) {
-                for (Socks socksValue : socksStorage.values()) {
-                    if (socksValue.equals(socks)) {
-                        socksValue.setQuantity(socksValue.getQuantity() + socks.getQuantity());
+            if (socksStorage.containsKey(socks)) {
+                for (Socks socksKey : socksStorage.keySet()) {
+                    if (socksKey.equals(socks)) {
+                        socksKey.setQuantity(socksKey.getQuantity() + socks.getQuantity());
                     }
                 }
             } else {
-                socksStorage.put(socksBatchId++, socks);
+                socksStorage.put(socks, socksBatchId++);
             }
         }
         saveFile();
-
     }
 
     public boolean decreaseSocksQty(Socks socks) {
-        if (socksStorage.containsValue(socks)) {
-            for (Socks socksValue : socksStorage.values()) {
-                if (socksValue.equals(socks) && socksValue.getQuantity() >= socks.getQuantity()) {
-                    socksValue.setQuantity(socksValue.getQuantity() - socks.getQuantity());
+        if (socksStorage.containsKey(socks)) {
+            for (Socks socksKey : socksStorage.keySet()) {
+                if (socksKey.equals(socks) && socksKey.getQuantity() >= socks.getQuantity()) {
+                    socksKey.setQuantity(socksKey.getQuantity() - socks.getQuantity());
                     return true;
                 }
             }
@@ -62,33 +55,35 @@ public class SockStorageService {
         return false;
     }
 
-    public int getSocksByParamCottonMin(Color color, Size size, int minCotton) {
+    public int getSocksByParam(Color color, Size size, Integer minCotton, Integer maxCotton) {
+        readFile();
         int qty = 0;
-        for (Socks socks : socksStorage.values()) {
-            if (socks.getColor() == color && socks.getSize() == size && socks.getCotton() >= minCotton) {
-                qty += socks.getQuantity();
+        for (Socks socks : socksStorage.keySet()) {
+            if (color != null && !color.equals(socks.getColor())) {
+                continue;
             }
+            if (size != null && !size.equals(socks.getSize())) {
+                continue;
+            }
+            if (minCotton != null && minCotton > socks.getCotton()) {
+                continue;
+            }
+            if (maxCotton != null && maxCotton < socks.getCotton()) {
+                continue;
+            }
+            qty += socks.getQuantity();
+
         }
         return qty;
     }
 
-    public int getSocksByParamCottonMax(Color color, Size size, int maxCotton) {
-        int qty = 0;
-        for (Socks socks : socksStorage.values()) {
-            if (socks.getColor() == color && socks.getSize() == size && socks.getCotton() <= maxCotton) {
-                qty += socks.getQuantity();
-            }
+    private void saveFile() {
+        List<Socks> socksList = new ArrayList<>();
+        for (Socks socks : socksStorage.keySet()) {
+            socksList.add(new Socks(socks.getColor(), socks.getSize(), socks.getCotton(), socks.getQuantity()));
         }
-        return qty;
-    }
-
-    public HashMap<Long, Socks> getSocksStorage() {
-        return socksStorage;
-    }
-
-    public void saveFile() {
         try {
-            String socksJson = new ObjectMapper().writeValueAsString(socksStorage);
+            String socksJson = new ObjectMapper().writeValueAsString(socksList);
             socksFileService.saveFile(socksJson);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -97,12 +92,15 @@ public class SockStorageService {
     }
 
     private void readFile() {
-        String socksJson = socksFileService.readFile();
+        File sockStorageJson = socksFileService.readFile();
         try {
-            socksStorage = new ObjectMapper().readValue(socksJson, new TypeReference<>() {
+            List<Socks> socksList = new ObjectMapper().readValue(sockStorageJson, new TypeReference<List<Socks>>() {
             });
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            for (Socks socks : socksList) {
+                socksStorage.put(socks, socksBatchId++);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

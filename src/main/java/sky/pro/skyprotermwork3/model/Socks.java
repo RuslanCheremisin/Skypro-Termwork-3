@@ -1,12 +1,11 @@
 package sky.pro.skyprotermwork3.model;
-
 import java.util.Objects;
 
 public class Socks {
     private Size size;
     private Color color;
-    private int cotton;
-    private int quantity;
+    private Integer cotton;
+    private Integer quantity;
 
     public Socks(Color color, Size size, int cotton, int quantity) {
         this.color = color;
@@ -14,17 +13,14 @@ public class Socks {
         this.cotton = cotton;
         this.quantity = quantity;
     }
-
     public Socks(Color color, Size size, int cotton) {
         this.color = color;
         this.size = size;
         this.cotton = cotton;
 
     }
-
     public Socks() {
     }
-
     public Color getColor() {
         return this.color;
     }
@@ -63,4 +59,8 @@ public class Socks {
     public int hashCode() {
         return Objects.hash(color, size, cotton);
     }
+//    @Override
+//    public String toString(){
+//        return new String("size:"+getSize()+",color:"+getColor()+",cotton:"+getCotton()+",quantity:"+getQuantity());
+//    }
 }
