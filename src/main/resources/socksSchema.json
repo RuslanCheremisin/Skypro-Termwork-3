@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "size": {
+      "type": "string", "enum": ["SIZE_6_8","SIZE_8_10","SIZE_10_12","SIZE_12_14","SIZE_14_16","SIZE_16_18","SIZE_18_20","SIZE_20_22","SIZE_22_24","SIZE_23","SIZE_25","SIZE_27","SIZE_29","SIZE_31"]
+    },
+    "color": {
+      "type": "string", "enum": ["BLACK","WHITE","GREY","DARK_BLUE","BROWN"]
+    },
+    "cotton": {
+      "type": "integer", "minimum": 0, "maximum": 100
+    },
+    "quantity": {
+      "type": "integer", "minimum": 1
+    }
+  },
+  "required": ["size","color","cotton","quantity"]
+}
