@@ -52,17 +52,24 @@ public class SockStorageController {
             sockStorageService.addSocks(socks);
             return ResponseEntity.ok().build();
         }
-        throw new IllegalArgumentException("json does not match with schema");
+        throw new IncorrectSockDataEntryException("json does not match with schema");
 //        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PutMapping
     @Operation(summary = "Здесь можно отправить носки со склада")
     public ResponseEntity releaseSocks(@RequestBody Socks socks) {
-        if (!sockStorageService.decreaseSocksQty(socks)) {
-            return ResponseEntity.badRequest().build();
+        try {
+            if(jsonIsValid(socks)){
+                if (!sockStorageService.decreaseSocksQty(socks)) {
+                    return ResponseEntity.badRequest().build();
+                }
+                return ResponseEntity.ok().build();
+            }
+        } catch (IOException e) {
+            throw new IncorrectSockDataEntryException("");
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
